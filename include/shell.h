@@ -1,5 +1,6 @@
 #ifndef SHELL_H
 #define SHELL_H
+
 void c_shell();
 void check_cmd();
 void execute_cmd();
