@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../include/shell.h"
+#include <signal.h>
 
 int main() {
     // tie the handler to the SGNCHLD signal
