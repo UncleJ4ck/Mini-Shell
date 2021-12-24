@@ -89,8 +89,8 @@ void check_cmd() {
     	}
     	char *path = malloc(1000);
 		path = "/usr/bin";
-		strcat(path,cmd);
-		if(access(path,F_OK) == 1){
+		strcat(path, cmd);
+		if(access(path, F_OK) == 1){
 			printf("Command not found\n");
 			get_cmd();
 		}
