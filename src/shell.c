@@ -16,7 +16,7 @@ unsigned char i;					// global variable for the child process ID
 
 void get_cmd(){
 	char* username = getenv("USER");		// showing the user the username
-    fprintf(stdout, "%s$> ", username);
+    fprintf(stdout, "%s $> ", username);
     // remove trailing newline
     if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
         perror("Fail to read the input stream");
