@@ -16,14 +16,14 @@ unsigned char i;					// global variable for the child process ID
 
 
 void get_cmd(){
-    fprintf(stdout, "$> ");
+	char* username = getenv("USER");		// showing the user the username
+    fprintf(stdout, "%s $> ", username);
     // remove trailing newline
     if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
         perror("Fail to read the input stream");
     } else {
         cmd[strlen(cmd) - 1] = '\0';
     }
-    // fprintf(stdout, "%s", cmd);
 }
 
 void convert_cmd() {
@@ -36,7 +36,6 @@ void convert_cmd() {
         i++;
         ptr = strtok(NULL, " ");
     }
-    
     // check for "&"
 	if (!strcmp("&", argv[i - 1])) {
 	    argv[i - 1] = NULL;
@@ -46,8 +45,6 @@ void convert_cmd() {
 	}
 	//printf("%d\n", i);
 }
-
-
 
 void log_handle(){
 	//printf("[LOG] child proccess terminated.\n");
@@ -60,7 +57,6 @@ void log_handle(){
         fclose(pFile);
     }
 }
-
 
 void execute_cmd() {
     	// fork and execute the command
@@ -83,34 +79,33 @@ void execute_cmd() {
 
 void check_cmd() {
     while (1) {
-    // bypass empty commands
-	if (!strcmp("", cmd)) {
-        perror("command not found!");
-        continue;
-    } 
-
-	// check for "exit" command
-    if (!strcmp("exit", cmd)) {
-        break;
-    } 
-
-    // hna fin tzid l3ayba dyal check command
+    	// bypass empty commands
+		if (!strcmp("", cmd)) {
+        	perror("command not found!");
+        	continue;
+    	}
+		// check for "exit" command
+    	if (!strcmp("exit", cmd)) {
+        	exit(0);
+    	}
+    	char *path = malloc(1000);
+		path = "/usr/bin";
+		strcat(path,cmd);
+		if(access(path,F_OK) == 1){
+			printf("Command not found\n");
+			get_cmd();
+		}
     }
-
 }
 
 void c_shell() {
-
     while(1) {
 	// get the command from user
 	get_cmd();
-	
     // check for commands
-    check_cmd();                    
-
+    check_cmd();
 	// fit the command into *argv[]
 	convert_cmd();
-
     // execute commands
     execute_cmd();
     }
