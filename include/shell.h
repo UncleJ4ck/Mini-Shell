@@ -2,7 +2,7 @@
 #define SHELL_H
 
 void c_shell();
-int check_builtins()
+int check_builtins();
 void execute_cmd();
 void log_handle();
 void convert_cmd();
