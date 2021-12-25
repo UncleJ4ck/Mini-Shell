@@ -87,7 +87,7 @@ void check_cmd() {
     	if (!strcmp("exit", cmd)) {
         	exit(0);
     	}
-    	char *path = malloc(1000);
+    	char *path = malloc(1000); // needs to be fixed 
 		path = "/usr/bin";
 		strcat(path, cmd);
 		if(access(path, F_OK) == 1){
