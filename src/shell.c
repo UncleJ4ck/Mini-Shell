@@ -21,7 +21,7 @@ void get_cmd(){
 		if (*cmd == '\n')
 			get_cmd();
         if (feof(stdin)) { // if EOF is inputted (Ctrl+D)
-			fprintf(stdout, "Bye.\n");
+			fprintf(stdout, "\nBye.\n");
 			exit(0);
 		} else {
 			perror("Failed to read the input stream");
@@ -42,12 +42,12 @@ void convert_cmd() {
         ptr = strtok(NULL, " ");
     }
 	 argv[i] = NULL;
-	 if (!strcmp("&", argv[i - 1])) {
-	    argv[i - 1] = NULL;
-	    argv[i] = "&";
+/*	 if (!strcmp("&", argv[i - 1])) {
+	    argv[i - 1] = "&";
+	    argv[i] = NULL;
 	} else {
 	    argv[i] = NULL;
-	}
+	} */
 	//printf("%d\n", i);
 }
 
@@ -72,8 +72,8 @@ void execute_cmd() {
 		} else if (pid == 0) {
 			// printf("hello from child\n");
 			// execute a command
-			if (execvp(argv[0], argv) == -1) {
-				fprintf(stderr, "%s: Command not found\n", argv[0]);
+			if (execvp(argv[0], argv) == -1) { // numerous reasons for that except "not found" (e.g permission denied)
+				fprintf(stderr, "%s: Command not found\n", argv[0]); 
 				get_cmd();
 			}
 		} else {
@@ -87,6 +87,10 @@ void execute_cmd() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // troublemaker function, comment it/fix it if you want it to work (removed on the stable branch) //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// this function works now, a bit more advanced and efficent way is on the stable branch (through error describing) //
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void check_cmd() {
     while (1) {
 		// check for "exit" command
@@ -94,11 +98,14 @@ void check_cmd() {
         	exit(0);
     	}
     	char *path = malloc(1000); // needs to be fixed 
-		path = "/usr/bin";
-		strcat(path, cmd); // segfault occurs around here
-		if(access(path, F_OK) == 1){
+//		path = "/usr/bin"; // strings are immutable ;)
+		strcpy(path, "/usr/bin/"); // copying the string to buffer instead of direct assignment
+		strcat(path, argv[0]);
+		if(access(path, F_OK) != 0){ 
 			printf("Command not found\n");
 			get_cmd();
+		} else {
+			break;
 		}
     }
 }
@@ -107,10 +114,10 @@ void c_shell() {
     while(1) {
 	// get the command from user
 	get_cmd();
-    // check for commands
-    check_cmd();
 	// fit the command into *argv[]
 	convert_cmd();
+	// check for commands
+	check_cmd();
     // execute commands
     execute_cmd();
     }
