@@ -9,28 +9,30 @@
 #define	MAX_SIZE_CMD	256
 #define	MAX_SIZE_ARG	16
 
+ 
 char cmd[MAX_SIZE_CMD];				// string holder for the command
 char *argv[MAX_SIZE_ARG];			// an array for command and arguments
 unsigned char i;					// global variable for the child process ID
+pid_t pid; 							// needed for exit builtin
+
 
 
 void get_cmd(){
 	char* username = getenv("USER");		// showing the user the username
     fprintf(stdout, "%s $> ", username);
     // remove trailing newline
-	if (fgets(cmd, MAX_SIZE_CMD, stdin))
-		if (*cmd == '\n') // if we hit newline then display the prompt again
-			get_cmd();
     if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
+		if (*cmd == '\n') // if newline is inputted show the prompt again
+			get_cmd();
         if (feof(stdin)) { // if EOF is inputted (Ctrl+D)
-			fprintf(stdout, "Bye.\n");
-			exit(0);
+			fprintf(stdout, "\nBye.\n");
+			exit(0); 								///// isn't effective, it kills child process one by one !!!
 		} else {
 			perror("Failed to read the input stream");
 		}
     } else {
         cmd[strlen(cmd) - 1] = '\0';
-    }
+    };
 }
 
 void convert_cmd() {
@@ -43,15 +45,31 @@ void convert_cmd() {
         i++;
         ptr = strtok(NULL, " ");
     }
-    // check for "&"
-	if (!strcmp("&", argv[i - 1])) {
-	    argv[i - 1] = NULL;
-	    argv[i] = "&";
-	} else {
-	    argv[i] = NULL;
-	}
-	//printf("%d\n", i);
+    argv[i] = NULL;
 }
+
+// handling builtin commmands
+int check_builtins() {
+	// cd needs more tweaks (e.g perm denied for dirs, non existing dirs)
+	if (!strcmp(cmd, "cd")) {
+		if (argv[1] == NULL) {
+			chdir(getenv("HOME")); // default cd without arg behaviour
+		} else {
+			chdir(argv[1]);
+		}
+		return 1;
+	}
+	// check if the child pid gets killed or not (to avoid zombie processes)
+	if (!strcmp(cmd, "exit")) {						////////////////////////////////////////////////////////////////////////////////////////////////////////
+		kill(pid, SIGTERM); // SIGTERM is nicer		// this doesn't kill all cpids, try inputing multiple cd .. then exit, you have to issue it many time to kill
+ 	}												// each process, needs some tweaking!!
+													//////////////////////////////////////////////////////////////////////////////////////////////
+
+	return 0; // not a builtin
+}
+
+
+
 
 void log_handle(){
 	//printf("[LOG] child proccess terminated.\n");
@@ -66,17 +84,18 @@ void log_handle(){
 }
 
 void execute_cmd() {
-    	// fork and execute the command
-        pid_t pid;
+    	// fork and execute the command;
 		pid = fork();
 		if (pid == -1) {
 			perror("failed to create a child\n");
 		} else if (pid == 0) {
-			// printf("hello from child\n");
 			// execute a command
-			execvp(argv[0], argv);
+			if (!check_builtins() == 1) { // if it's not a builtin execute the binary/script associated with the command
+				if (execvp(argv[0], argv) == -1) { // must add a mechanism to check if the uid has permission to run binary (since it returns the same value if so)
+					fprintf(stderr, "%s: command not found\n", argv[0]);
+				}
+			}
 		} else {
-			// printf("hello from parent\n");
 			// wait for the command to finish if "&" is not present
 			if (argv[i] == NULL) {
             waitpid(pid, NULL, 0);
@@ -84,36 +103,14 @@ void execute_cmd() {
     }
 }
 
-void check_cmd() {
-    while (1) {
-    	// bypass empty commands
-		if (!strcmp("\n", cmd)) {
-        	perror("command not found!");
-        	continue;
-    	}
-		// check for "exit" command
-    	if (!strcmp("exit", cmd)) {
-        	exit(0);
-    	}
-    	char *path = malloc(1000); // needs to be fixed 
-		path = "/usr/bin";
-		strcat(path, cmd);
-		if(access(path, F_OK) == 1){
-			printf("Command not found\n");
-			get_cmd();
-		}
-    }
-}
 
 void c_shell() {
     while(1) {
-	// get the command from user
-	get_cmd();
-    // check for commands
-    check_cmd();
-	// fit the command into *argv[]
-	convert_cmd();
-    // execute commands
-    execute_cmd();
+		// get the command from user
+		get_cmd();
+		// fit the command into *argv[]
+		convert_cmd();
+	    // execute commands
+	    execute_cmd();
     }
 }
