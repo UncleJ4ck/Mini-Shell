@@ -18,10 +18,9 @@ void get_cmd(){
 	char* username = getenv("USER");		// showing the user the username
     fprintf(stdout, "%s $> ", username);
     // remove trailing newline
-	if (fgets(cmd, MAX_SIZE_CMD, stdin))
-		if (*cmd == '\n') // if we hit newline then display the prompt again
+	if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
+		if (*cmd == '\n')
 			get_cmd();
-    if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
         if (feof(stdin)) { // if EOF is inputted (Ctrl+D)
 			fprintf(stdout, "Bye.\n");
 			exit(0);
@@ -84,33 +83,10 @@ void execute_cmd() {
     }
 }
 
-void check_cmd() {
-    while (1) {
-    	// bypass empty commands
-		if (!strcmp("\n", cmd)) {
-        	perror("command not found!");
-        	continue;
-    	}
-		// check for "exit" command
-    	if (!strcmp("exit", cmd)) {
-        	exit(0);
-    	}
-    	char *path = malloc(1000); // needs to be fixed 
-		path = "/usr/bin";
-		strcat(path, cmd);
-		if(access(path, F_OK) == 1){
-			printf("Command not found\n");
-			get_cmd();
-		}
-    }
-}
-
 void c_shell() {
     while(1) {
 	// get the command from user
 	get_cmd();
-    // check for commands
-    check_cmd();
 	// fit the command into *argv[]
 	convert_cmd();
     // execute commands
