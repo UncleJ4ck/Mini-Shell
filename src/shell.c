@@ -79,7 +79,7 @@ void execute_cmd() {
 void check_cmd() {
     while (1) {
     	// bypass empty commands
-		if (!strcmp("", cmd)) {
+		if (!strcmp("\n", cmd)) {
         	perror("command not found!");
         	continue;
     	}
