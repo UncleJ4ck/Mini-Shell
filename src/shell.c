@@ -19,7 +19,8 @@ void get_cmd(){
     fprintf(stdout, "%s $> ", username);
     // remove trailing newline
     if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
-        perror("Failed to read the input stream");
+        if (feof(stdin)) // if EOF is inputted (Ctrl+D)
+			fprintf(stdout, "Bye.\n");
     } else {
         cmd[strlen(cmd) - 1] = '\0';
     }
