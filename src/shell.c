@@ -18,9 +18,13 @@ void get_cmd(){
 	char* username = getenv("USER");		// showing the user the username
     fprintf(stdout, "%s $> ", username);
     // remove trailing newline
+	if (fgets(cmd, MAX_SIZE_CMD, stdin))
+		if (*cmd == '\n') // if we hit newline then display the prompt again
+			get_cmd();
     if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
         if (feof(stdin)) { // if EOF is inputted (Ctrl+D)
 			fprintf(stdout, "Bye.\n");
+			exit(0);
 		} else {
 			perror("Failed to read the input stream");
 		}
