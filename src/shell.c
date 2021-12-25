@@ -42,6 +42,12 @@ void convert_cmd() {
         ptr = strtok(NULL, " ");
     }
 	 argv[i] = NULL;
+	 if (!strcmp("&", argv[i - 1])) {
+	    argv[i - 1] = NULL;
+	    argv[i] = "&";
+	} else {
+	    argv[i] = NULL;
+	}
 	//printf("%d\n", i);
 }
 
@@ -67,7 +73,7 @@ void execute_cmd() {
 			// printf("hello from child\n");
 			// execute a command
 			if (execvp(argv[0], argv) == -1) {
-				fprintf(stderr, "Command not found.\n");
+				fprintf(stderr, "%s: Command not found\n", argv[0]);
 				get_cmd();
 			}
 		} else {
@@ -78,8 +84,9 @@ void execute_cmd() {
 		}
     }
 }
-
-// troublemaker function, comment it/fix it if you want it to work (removed on the stable branch)
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// troublemaker function, comment it/fix it if you want it to work (removed on the stable branch) //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void check_cmd() {
     while (1) {
 		// check for "exit" command
