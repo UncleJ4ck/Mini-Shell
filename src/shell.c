@@ -13,7 +13,6 @@ char cmd[MAX_SIZE_CMD];				// string holder for the command
 char *argv[MAX_SIZE_ARG];			// an array for command and arguments
 unsigned char i;					// global variable for the child process ID
 
-
 void get_cmd(){
 	char* username = getenv("USER");		// showing the user the username
     fprintf(stdout, "%s $> ", username);
@@ -42,13 +41,7 @@ void convert_cmd() {
         i++;
         ptr = strtok(NULL, " ");
     }
-    // check for "&"
-	if (!strcmp("&", argv[i - 1])) {
-	    argv[i - 1] = NULL;
-	    argv[i] = "&";
-	} else {
-	    argv[i] = NULL;
-	}
+	 argv[i] = NULL;
 	//printf("%d\n", i);
 }
 
@@ -73,7 +66,10 @@ void execute_cmd() {
 		} else if (pid == 0) {
 			// printf("hello from child\n");
 			// execute a command
-			execvp(argv[0], argv);
+			if (execvp(argv[0], argv) == -1) {
+				fprintf(stderr, "Command not found.\n");
+				get_cmd();
+			}
 		} else {
 			// printf("hello from parent\n");
 			// wait for the command to finish if "&" is not present
@@ -83,10 +79,29 @@ void execute_cmd() {
     }
 }
 
+// troublemaker function, comment it/fix it if you want it to work (removed on the stable branch)
+void check_cmd() {
+    while (1) {
+		// check for "exit" command
+    	if (!strcmp("exit", cmd)) {
+        	exit(0);
+    	}
+    	char *path = malloc(1000); // needs to be fixed 
+		path = "/usr/bin";
+		strcat(path, cmd); // segfault occurs around here
+		if(access(path, F_OK) == 1){
+			printf("Command not found\n");
+			get_cmd();
+		}
+    }
+}
+
 void c_shell() {
     while(1) {
 	// get the command from user
 	get_cmd();
+    // check for commands
+    check_cmd();
 	// fit the command into *argv[]
 	convert_cmd();
     // execute commands
