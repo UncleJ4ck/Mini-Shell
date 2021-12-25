@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h> // for handling excevp errors
 
 #define	MAX_SIZE_CMD	256
 #define	MAX_SIZE_ARG	16
@@ -91,8 +92,8 @@ void execute_cmd() {
 		} else if (pid == 0) {
 			// execute a command
 			if (!check_builtins() == 1) { // if it's not a builtin execute the binary/script associated with the command
-				if (execvp(argv[0], argv) == -1) { // must add a mechanism to check if the uid has permission to run binary (since it returns the same value if so)
-					fprintf(stderr, "%s: command not found\n", argv[0]);
+				if (execvp(argv[0], argv) == -1) {
+					fprintf(stderr, "%s: %s\n", argv[0], strerror(errno)); // explains the type of error
 				}
 			}
 		} else {
