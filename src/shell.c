@@ -20,6 +20,8 @@ void get_cmd(){
     // remove trailing newline
     if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
         perror("Failed to read the input stream");
+    } else {
+        cmd[strlen(cmd) - 1] = '\0';
     }
 }
 
