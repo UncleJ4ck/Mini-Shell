@@ -6,11 +6,21 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h> // for handling excevp errors
+#include <time.h>
 
+
+#define RED   "\x1B[31m" // ANSI colors for terminal
+#define GRN   "\x1B[32m"
+#define YEL   "\x1B[33m"
+#define BLU   "\x1B[34m"
+#define PUR	  "\x1B[35m"
+#define CYN   "\x1B[36m"
+#define WHT   "\x1B[37m"	
+#define RESET "\x1B[0m"
 #define	MAX_SIZE_CMD	256
 #define	MAX_SIZE_ARG	16
 
- 
+
 char cmd[MAX_SIZE_CMD];				// string holder for the command
 char *argv[MAX_SIZE_ARG];			// an array for command and arguments
 unsigned char i;					// global variable for the child process ID
@@ -19,8 +29,19 @@ pid_t pid; 							// needed for exit builtin
 
 
 void get_cmd(){
-	char* username = getenv("USER");		// showing the user the username
-    fprintf(stdout, "%s$> ", username);
+	// showing the time and date
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t); 
+
+	char directory[FILENAME_MAX];
+	char hostname[_SC_HOST_NAME_MAX];
+	char* username = getenv("USER");				// showing the username
+
+	getcwd(directory, sizeof(directory)); 	// getting the current directory 
+	gethostname(hostname, sizeof(hostname));		// showing the hostname
+	
+	fprintf(stdout,RED"┌["CYN"%s"RED"]─["YEL"%d/%02d/%02d-%02d:%02d:%02d"RED"]─["PUR"%s"RED"]\n"RESET, hostname, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, directory);
+    fprintf(stdout, RED"└╼"GRN"%s"YEL"$> "RESET, username);
     // remove trailing newline
     if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
 		if (*cmd == '\n') // if newline is inputted show the prompt again
@@ -75,7 +96,7 @@ int check_builtins() {
 void log_handle(){
 	//printf("[LOG] child proccess terminated.\n");
 	FILE *pFile;
-    pFile = fopen("log.txt", "a");
+    pFile = fopen(".log.txt", "a");
     if (pFile == NULL) {
         perror("Error opening file.");
     } else {
