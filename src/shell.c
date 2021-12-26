@@ -20,7 +20,7 @@ pid_t pid; 							// needed for exit builtin
 
 void get_cmd(){
 	char* username = getenv("USER");		// showing the user the username
-    fprintf(stdout, "%s $> ", username);
+    fprintf(stdout, "%s$> ", username);
     // remove trailing newline
     if (fgets(cmd, MAX_SIZE_CMD, stdin) == NULL) {
 		if (*cmd == '\n') // if newline is inputted show the prompt again
@@ -88,7 +88,7 @@ void execute_cmd() {
     	// fork and execute the command;
 		pid = fork();
 		if (pid == -1) {
-			perror("failed to create a child\n");
+			perror("Failed to create a child\n");
 		} else if (pid == 0) {
 			// execute a command
 			if (!check_builtins() == 1) { // if it's not a builtin execute the binary/script associated with the command
