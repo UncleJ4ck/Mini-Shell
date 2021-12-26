@@ -72,20 +72,21 @@ void convert_cmd() {
 
 // handling builtin commmands
 int check_builtins() {
+	int stat; // keep track of builtin execution status
 	// cd needs more tweaks (e.g perm denied for dirs, non existing dirs)
 	if (!strcmp(cmd, "cd")) {
 		if (argv[1] == NULL) {
-			chdir(getenv("HOME")); // default cd without arg behaviour
+			stat = chdir(getenv("HOME")); // default cd without arg behaviour
 		} else {
-			chdir(argv[1]);
+			stat = chdir(argv[1]);
 		}
+		if (stat != 0)
+			fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
 		return 1;
 	}
-	// check if the child pid gets killed or not (to avoid zombie processes)
-	if (!strcmp(cmd, "exit")) {						////////////////////////////////////////////////////////////////////////////////////////////////////////
-		kill(pid, SIGTERM); // SIGTERM is nicer		// this doesn't kill all cpids, try inputing multiple cd .. then exit, you have to issue it many time to kill
- 	}												// each process, needs some tweaking!!
-													//////////////////////////////////////////////////////////////////////////////////////////////
+	if (!strcmp(cmd, "exit")) {
+		exit(0);
+ 	}
 
 	return 0; // not a builtin
 }
@@ -106,25 +107,24 @@ void log_handle(){
 }
 
 void execute_cmd() {
-    	// fork and execute the command;
-		pid = fork();
-		if (pid == -1) {
-			perror("Failed to create a child\n");
-		} else if (pid == 0) {
-			// execute a command
-			if (!check_builtins() == 1) { // if it's not a builtin execute the binary/script associated with the command
-				if (execvp(argv[0], argv) == -1) {
-					fprintf(stderr, "%s: %s\n", argv[0], strerror(errno)); // explains the type of error
+		if (!check_builtins() == 1) { // if it's not a builtin execute the binary/script associated with the command
+			// fork and execute the command;
+			pid = fork();
+			if (pid == -1) {
+				perror("Failed to create a child\n");
+			} else if (pid == 0) {
+				// execute a command
+					if (execvp(argv[0], argv) == -1) {
+						fprintf(stderr, "%s: %s\n", argv[0], strerror(errno)); // explains the type of error
+					}
+			} else {
+				// wait for the command to finish if "&" is not present
+				if (argv[i] == NULL) {
+		            waitpid(pid, NULL, 0);
 				}
-			}
-		} else {
-			// wait for the command to finish if "&" is not present
-			if (argv[i] == NULL) {
-            waitpid(pid, NULL, 0);
+		    }
 		}
-    }
 }
-
 
 void c_shell() {
     while(1) {
