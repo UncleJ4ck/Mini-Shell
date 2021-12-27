@@ -6,7 +6,6 @@ char *argv[ARG_MAX];
 // handling builtin commmands
 int check_builtins() {
 	int stat; // keep track of builtin execution status
-	// cd needs more tweaks (e.g perm denied for dirs, non existing dirs)
 	if (!strcmp(cmd, "cd")) {
 		if (argv[1] == NULL) {
 			stat = chdir(getenv("HOME")); // default cd without arg behaviour

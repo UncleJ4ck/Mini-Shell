@@ -20,7 +20,7 @@ void get_cmd(){
 			get_cmd();
         if (feof(stdin)) { // if EOF is inputted (Ctrl+D)
 			fprintf(stdout, "\nBye.\n");
-			exit(0); 								///// isn't effective, it kills child process one by one !!!
+			exit(0);
 		} else {
 			perror("Failed to read the input stream");
 		}
