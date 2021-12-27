@@ -9,3 +9,5 @@ obj/main.o : src/main.c
 
 clean:
 	rm -f obj/*.o
+install :
+	cp shell /usr/bin/
