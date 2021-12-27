@@ -54,6 +54,7 @@ void get_cmd(){
 		}
     } else {
         cmd[strlen(cmd) - 1] = '\0';
+		convert_cmd();
     };
 }
 
@@ -68,6 +69,7 @@ void convert_cmd() {
         ptr = strtok(NULL, " ");
     }
     argv[i] = NULL;
+	execute_cmd();
 }
 
 // handling builtin commmands
@@ -124,15 +126,6 @@ void execute_cmd() {
 				}
 		    }
 		}
+		get_cmd();
 }
 
-void c_shell() {
-    while(1) {
-		// get the command from user
-		get_cmd();
-		// fit the command into *argv[]
-		convert_cmd();
-	    // execute commands
-	    execute_cmd();
-    }
-}
