@@ -1,6 +1,6 @@
 # Mini Shell
 
-Simple mini-shell coded in C Language, i had a lot of informations and experiences with Linux processes and some low level stuff while coding this project me and my fellow comrades [0UR4N05](https://github.com/0UR4N05) and [g0rchy](https://github.com/g0rchy) 
+Simple mini-shell coded in C Language, i had a lot of informations and experiences about Linux processes and some low level stuff while coding this project me and my fellow comrades [0UR4N05](https://github.com/0UR4N05) and [g0rchy](https://github.com/g0rchy) 
 
 ![pp](https://i.imgur.com/y3nsWMR.png)
 
