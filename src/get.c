@@ -1,5 +1,7 @@
 #include "../include/shell.h"
 
+int MAX_SIZE_CMD = 256; // it's more lengthy than this one, i've never seen a lengthy command so far :)
+
 void get_cmd(){
 	// showing the time and date
 	time_t t = time(NULL);
